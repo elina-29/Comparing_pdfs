@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Comparison</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>File Comparison</h1>
+    <form method="POST" enctype="multipart/form-data">
+        <label for="previous_file">Upload Previous File:</label>
+        <input type="file" name="previous_file">
+        <br>
+        <label for="current_file">Upload Current File:</label>
+        <input type="file" name="current_file">
+        <br>
+        <p>Supported file formats: PDF, HTML</p>
+        <button type="submit">Compare Files</button>
+    </form>
+   
+{% if new_errors %}
+    <h2>New Vulnerabilities - Total: {{ new_errors_count }}</h2>
+    <ul>
+    {% set unique_new_errors = [] %}
+    {% for error in new_errors %}
+        <li>
+            {% set words = error.split() %}
+            {% for word in words %}
+                {% if "critical" in word|lower %}
+                    <span class="critical-text"><strong>{{ word|upper }}</strong></span>
+                {% elif "high" in word|lower %}
+                    <span class="high-text"><strong>{{ word|upper }}</strong></span>
+                {% elif "medium" in word|lower %}
+                    <span class="medium-text"><strong>{{ word|upper }}</strong></span>
+                {% elif "low" in word|lower %}
+                    <span class="low-text"><strong>{{ word|upper }}</strong></span>
+                {% else %}
+                    {{ word }}
+                {% endif %}
+                <!-- {% if not loop.last %} {# Add a space unless it's the last word #}
+                    &nbsp;
+                {% endif %} -->
+            {% endfor %}
+        </li>
+        {% set _ = unique_new_errors.append(error) %}
+    {% endfor %}
+</ul>
+
+
+    {% endif %}
+
+
+{% if resolved_errors %}
+<h2>Resolved Vulnerabilities - Total: {{ resolved_errors_count }}</h2>
+<ul>
+    {% set unique_resolved_errors = [] %}
+    {% for error in resolved_errors %}
+        {% if error not in unique_resolved_errors %}
+            <li>
+            {% set words = error.split() %}
+            {% for word in words %}
+                {% if "critical" in word|lower %}
+                    <span class="critical-text"><strong>{{ word|upper }}</strong></span>
+                {% elif "high" in word|lower %}
+                    <span class="high-text"><strong>{{ word|upper }}</strong></span>
+                {% elif "medium" in word|lower %}
+                    <span class="medium-text"><strong>{{ word|upper }}</strong></span>
+                {% elif "low" in word|lower %}
+                    <span class="low-text"><strong>{{ word|upper }}</strong></span>
+                {% else %}
+                    {{ word }}
+                {% endif %}
+                <!-- {% if not loop.last %} {# Add a space unless it's the last word #}
+                    &nbsp;
+                {% endif %} -->
+            {% endfor %}
+        </li>
+            {% set _ = unique_resolved_errors.append(error) %}
+        {% endif %}
+    {% endfor %}
+</ul>
+{% endif %}
+
+   
+{% if not new_errors %}
+<p class="message">No new vulnerabilities found.</p>
+{% endif %}
+
+{% if not resolved_errors %}
+<p class="message">No resolved vulnerabilities found.</p>
+{% endif %}
+
+{% if info_lines %}
+<h2>Info:</h2>
+<ul>
+    {% for line in info_lines %}
+    <li>{{ line }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+
+</body>
+</html>
